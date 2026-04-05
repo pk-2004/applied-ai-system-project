@@ -64,7 +64,14 @@ class DocuBot:
         ignore punctuation if needed.
         """
         index = {}
-        # TODO: implement simple indexing
+        for filename, text in documents:
+            for token in text.lower().split():
+                word = token.strip(".,!?;:\"'()[]{}")
+                if word:
+                    if word not in index:
+                        index[word] = []
+                    if filename not in index[word]:
+                        index[word].append(filename)
         return index
 
     # -----------------------------------------------------------
@@ -81,19 +88,40 @@ class DocuBot:
         - Count how many appear in the text
         - Return the count as the score
         """
-        # TODO: implement scoring
-        return 0
+        query_words = [w.strip(".,!?;:\"'()[]{}") for w in query.lower().split()]
+        text_words = set(w.strip(".,!?;:\"'()[]{}") for w in text.lower().split())
+        score = sum(1 for word in query_words if word and word in text_words)
+        return score
 
     def retrieve(self, query, top_k=3):
         """
-        TODO (Phase 1):
         Use the index and scoring function to select top_k relevant document snippets.
 
-        Return a list of (filename, text) sorted by score descending.
+        Splits each document into paragraphs, scores each chunk, and returns
+        the best-matching chunk per document, sorted by score descending.
         """
-        results = []
-        # TODO: implement retrieval logic
-        return results[:top_k]
+        scored = []
+        for filename, text in self.documents:
+            # Split into sections by ## headings to keep each section together
+            chunks = []
+            current = []
+            for line in text.split("\n"):
+                if line.startswith("## ") and current:
+                    chunks.append("\n".join(current).strip())
+                    current = []
+                current.append(line)
+            if current:
+                chunks.append("\n".join(current).strip())
+            chunks = [c for c in chunks if c]
+            best_score, best_chunk = 0, chunks[0] if chunks else text
+            for chunk in chunks:
+                score = self.score_document(query, chunk)
+                if score > best_score:
+                    best_score, best_chunk = score, chunk
+            if best_score >= 2:
+                scored.append((best_score, filename, best_chunk))
+        scored.sort(key=lambda x: x[0], reverse=True)
+        return [(filename, chunk) for _, filename, chunk in scored[:top_k]]
 
     # -----------------------------------------------------------
     # Answering Modes

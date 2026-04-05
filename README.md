@@ -80,3 +80,6 @@ You will primarily work in:
 - Python 3.9+
 - A Gemini API key for LLM features (only needed for modes 1 and 3)
 - No database, no server setup, no external services besides LLM calls
+
+## TF TASK
+The main purpose of this tinker is to give a sense of the different models that help with response generation, like LLM, retrieval, and RAG as well as understanding the pros and cons with each of them. Students most likely are going to struggle with finding edge cases and failure cases. AI was helpful in helping to write code for the TODO portions. It was misleading at a particular case when I tried to ask it why the result of the model is incorrect. I would guide the group in a way by not blatently giving the answer by asking them ask the question to the AI in a way that helps them to gain full understanding. For example, I may advise them to ask AI for test cases and gain insight on why testing those queries with the model may showcase any flaws. 

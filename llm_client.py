@@ -13,7 +13,7 @@ Experiment with:
 """
 
 import os
-import google.generativeai as genai
+from google import genai
 
 # Central place to update the model name if needed.
 # You can swap this for a different Gemini model in the future.
@@ -39,8 +39,7 @@ class GeminiClient:
                 "Set it in your shell or .env file to enable LLM features."
             )
 
-        genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel(GEMINI_MODEL_NAME)
+        self.client = genai.Client(api_key=api_key)
 
     # -----------------------------------------------------------
     # Phase 0: naive generation over full docs
@@ -49,10 +48,11 @@ class GeminiClient:
     def naive_answer_over_full_docs(self, query, all_text):
         # We ignore all_text and send a generic prompt instead
         prompt = f"""
-    You are a documentation assistant. 
-    Answer this developer question: {query}
+    You are a documentation assistant.
+    Answer this developer question in 2-3 sentences maximum: {query}
+    Be concise and direct. Do not include preamble or unnecessary explanation.
     """
-        response = self.model.generate_content(prompt)
+        response = self.client.models.generate_content(model=GEMINI_MODEL_NAME, contents=prompt)
         return (response.text or "").strip()
 
     # -----------------------------------------------------------
@@ -107,5 +107,5 @@ Rules:
 - When you do answer, briefly mention which files you relied on.
 """
 
-        response = self.model.generate_content(prompt)
+        response = self.client.models.generate_content(model=GEMINI_MODEL_NAME, contents=prompt)
         return (response.text or "").strip()
